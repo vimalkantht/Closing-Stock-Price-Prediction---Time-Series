@@ -1,0 +1,180 @@
+<html>
+<head>
+<title>test final file 1.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #808080;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+test final file 1.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">nsepy </span><span class="s0">import </span><span class="s1">get_history</span>
+<span class="s0">from </span><span class="s1">datetime </span><span class="s0">import </span><span class="s1">date</span><span class="s0">, </span><span class="s1">datetime</span>
+<span class="s0">import </span><span class="s1">os</span>
+<span class="s0">from </span><span class="s1">tradingview_ta </span><span class="s0">import </span><span class="s1">TA_Handler</span><span class="s0">, </span><span class="s1">Interval</span><span class="s0">, </span><span class="s1">Exchange</span>
+<span class="s0">import </span><span class="s1">time</span>
+<span class="s0">from </span><span class="s1">selenium </span><span class="s0">import </span><span class="s1">webdriver</span>
+<span class="s0">from </span><span class="s1">selenium.webdriver.chrome.service </span><span class="s0">import </span><span class="s1">Service</span>
+<span class="s0">from </span><span class="s1">webdriver_manager.chrome </span><span class="s0">import </span><span class="s1">ChromeDriverManager</span>
+<span class="s0">from </span><span class="s1">selenium.webdriver.common.by </span><span class="s0">import </span><span class="s1">By</span>
+
+<span class="s1">os.system(</span><span class="s2">&quot;figlet -c Python Trading Bot &quot;</span><span class="s1">)</span>
+<span class="s1">Today = date.today()</span>
+<span class="s1">y = Today.strftime(</span><span class="s2">&quot;%Y&quot;</span><span class="s1">)</span>
+<span class="s1">m = Today.strftime(</span><span class="s2">&quot;%m&quot;</span><span class="s1">)</span>
+<span class="s1">d = Today.strftime(</span><span class="s2">&quot;%d&quot;</span><span class="s1">)</span>
+<span class="s3"># d = &quot;30&quot;</span>
+
+<span class="s1">print(y);</span>
+<span class="s1">print(m);</span>
+<span class="s1">print(d);</span>
+
+<span class="s3">#last order</span>
+<span class="s1">last_order=</span><span class="s2">&quot;sell&quot;</span>
+<span class="s1">sold_before = </span><span class="s0">False</span>
+<span class="s1">bought_before = </span><span class="s0">False</span>
+<span class="s1">current_price = </span><span class="s4">0</span>
+<span class="s1">take_profit = </span><span class="s4">0.0</span>
+<span class="s1">take_loss = </span><span class="s4">0.0</span>
+
+<span class="s3">#load chrome driver</span>
+<span class="s3"># driver = webdriver.Chrome(executable_path=&quot;/Users/mrm/Downloads/chromedriver&quot;)</span>
+<span class="s1">s=Service(ChromeDriverManager().install())</span>
+<span class="s1">driver = webdriver.Chrome(service=s)</span>
+<span class="s1">driver.maximize_window()</span>
+<span class="s1">driver.get(</span><span class="s2">&quot;https://in.tradingview.com/&quot;</span><span class="s1">)</span>
+<span class="s1">time.sleep(</span><span class="s4">60</span><span class="s1">)</span>
+
+
+<span class="s3">#initiating tradingview handler to get the recomendation for sonata software for 15 min interval</span>
+<span class="s1">ssw = TA_Handler(</span>
+
+    <span class="s1">symbol=</span><span class="s2">&quot;SONATSOFTW&quot;</span><span class="s0">,</span>
+    <span class="s1">screener=</span><span class="s2">&quot;india&quot;</span><span class="s0">,</span>
+    <span class="s1">exchange=</span><span class="s2">&quot;NSE&quot;</span><span class="s0">,</span>
+    <span class="s1">interval=Interval.INTERVAL_5_MINUTES</span>
+<span class="s1">)</span>
+
+
+<span class="s0">def </span><span class="s1">countdown(t):</span>
+    <span class="s0">while </span><span class="s1">t:</span>
+        <span class="s1">mins</span><span class="s0">, </span><span class="s1">secs = divmod(t</span><span class="s0">, </span><span class="s4">60</span><span class="s1">)</span>
+        <span class="s1">timer = </span><span class="s2">'{:02d}:{:02d}'</span><span class="s1">.format(mins</span><span class="s0">, </span><span class="s1">secs)</span>
+        <span class="s1">print(timer</span><span class="s0">, </span><span class="s1">end=</span><span class="s2">&quot;</span><span class="s0">\r</span><span class="s2">&quot;</span><span class="s1">)</span>
+        <span class="s1">time.sleep(</span><span class="s4">1</span><span class="s1">)</span>
+        <span class="s1">t -= </span><span class="s4">1</span>
+
+
+<span class="s0">while True</span><span class="s1">:</span>
+    <span class="s1">now = datetime.now()</span>
+    <span class="s1">current_time = now.strftime(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="s1">)</span>
+    <span class="s0">if </span><span class="s1">(current_time &gt;= </span><span class="s2">&quot;09:30:00&quot; </span><span class="s0">and </span><span class="s1">current_time &lt; </span><span class="s2">&quot;15:10:00&quot;</span><span class="s1">):</span>
+
+        <span class="s1">rec = ssw.get_analysis()</span>
+        <span class="s1">RSI = rec.indicators[</span><span class="s2">&quot;RSI&quot;</span><span class="s1">]</span>
+        <span class="s3"># MACD = rec.indicators[&quot;MACD.macd&quot;]</span>
+        <span class="s1">EMA = rec.moving_averages[</span><span class="s2">&quot;COMPUTE&quot;</span><span class="s1">][</span><span class="s2">&quot;EMA10&quot;</span><span class="s1">]</span>
+        <span class="s1">print(</span><span class="s2">&quot;RSI:&quot;</span><span class="s0">, </span><span class="s1">RSI</span><span class="s0">, </span><span class="s2">&quot;EMA:&quot;</span><span class="s0">, </span><span class="s1">EMA)</span>
+
+        <span class="s0">if </span><span class="s1">(RSI &gt;= </span><span class="s4">30 </span><span class="s0">and </span><span class="s1">RSI &lt;= </span><span class="s4">70 </span><span class="s0">and </span><span class="s1">EMA == </span><span class="s2">&quot;BUY&quot;</span><span class="s1">):</span>
+            <span class="s0">if </span><span class="s1">(last_order == </span><span class="s2">&quot;sell&quot;</span><span class="s1">):</span>
+                <span class="s1">print(</span><span class="s2">&quot;Buying 1 stock of SONATSOFTW&quot;</span><span class="s1">)</span>
+                <span class="s1">last_order = </span><span class="s2">&quot;buy&quot;</span>
+                <span class="s1">print(last_order)</span>
+                <span class="s1">print(sold_before)</span>
+                <span class="s3"># buy 1 stock of SONATSOFTW</span>
+                <span class="s3">#driver.find_element(By.XPATH, &quot;//div[8]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]&quot;).click()</span>
+                <span class="s1">driver.find_element(By.XPATH</span><span class="s0">, </span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]&quot;</span><span class="s1">).click()</span>
+                <span class="s3">#driver.find_element(By.XPATH, &quot;//div[1]/div[1]/div[6]/button[1]/div[1]/span[2]&quot;).click()</span>
+                <span class="s1">driver.find_element(By.XPATH</span><span class="s0">, </span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[6]/button[1]/div[1]/span[2]&quot;</span><span class="s1">).click()</span>
+    <span class="s3">#             current_price = driver.find_element(By.XPATH,</span>
+    <span class="s3">#                                                 &quot;//div[2]/div[8]/div[1]/div/div/div[1]/div[2]/div/div[2]/div[2]/div&quot;).text</span>
+                <span class="s1">current_price = driver.find_element(By.XPATH</span><span class="s0">,</span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]&quot;</span><span class="s1">).text</span>
+                <span class="s1">print(current_price)</span>
+                <span class="s1">take_profit = float(current_price) + </span><span class="s4">8</span>
+                <span class="s1">take_loss = float(current_price) - </span><span class="s4">5</span>
+                <span class="s1">print(</span><span class="s2">&quot;take_profit&quot;</span><span class="s0">,</span><span class="s1">take_profit)</span>
+                <span class="s1">print(</span><span class="s2">&quot;take_loss&quot;</span><span class="s0">,</span><span class="s1">take_loss)</span>
+                <span class="s0">while True</span><span class="s1">:</span>
+                    <span class="s1">print(</span><span class="s2">&quot;Time left till next call - &quot;</span><span class="s1">)</span>
+                    <span class="s1">countdown(int(</span><span class="s4">5</span><span class="s1">))</span>
+                    <span class="s1">rec = ssw.get_analysis()</span>
+                    <span class="s1">RSI = rec.indicators[</span><span class="s2">&quot;RSI&quot;</span><span class="s1">]</span>
+                    <span class="s3"># MACD = rec.indicators[&quot;MACD.macd&quot;]</span>
+                    <span class="s1">EMA = rec.moving_averages[</span><span class="s2">&quot;COMPUTE&quot;</span><span class="s1">][</span><span class="s2">&quot;EMA10&quot;</span><span class="s1">]</span>
+                    <span class="s1">print(</span><span class="s2">&quot;RSI:&quot;</span><span class="s0">, </span><span class="s1">RSI</span><span class="s0">, </span><span class="s2">&quot;EMA:&quot;</span><span class="s0">, </span><span class="s1">EMA)</span>
+                    <span class="s1">current_price = driver.find_element(By.XPATH</span><span class="s0">,</span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]&quot;</span><span class="s1">).text</span>
+                    <span class="s0">if </span><span class="s1">((RSI &gt;= </span><span class="s4">30 </span><span class="s0">and </span><span class="s1">EMA == </span><span class="s2">&quot;SELL&quot;</span><span class="s1">) </span><span class="s0">or </span><span class="s1">(float(current_price) &gt;= take_profit) </span><span class="s0">or </span><span class="s1">(float(current_price) &lt;= take_loss)):</span>
+                        <span class="s3"># sell the stock</span>
+                        <span class="s1">print(</span><span class="s2">&quot;Selling 1 stock of SONATSOFTW&quot;</span><span class="s1">)</span>
+                        <span class="s1">last_order = </span><span class="s2">&quot;sell&quot;</span>
+                        <span class="s1">print(last_order)</span>
+                        <span class="s3"># sell 1 stock of SONATSOFTW</span>
+                        <span class="s1">driver.find_element(By.XPATH</span><span class="s0">,</span>
+                                            <span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]&quot;</span><span class="s1">).click()</span>
+                        <span class="s1">time.sleep(</span><span class="s4">2</span><span class="s1">)</span>
+                        <span class="s1">driver.find_element(By.XPATH</span><span class="s0">, </span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[6]/button[1]/div[1]/span[2]&quot;</span><span class="s1">).click()</span>
+                        <span class="s0">break</span>
+                    <span class="s0">else</span><span class="s1">:</span>
+                        <span class="s1">print(</span><span class="s2">&quot;no adjustment required&quot;</span><span class="s1">)</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">print(</span><span class="s2">&quot;last order not sold&quot;</span><span class="s1">)</span>
+        <span class="s0">elif </span><span class="s1">(RSI &gt;= </span><span class="s4">50 </span><span class="s0">and </span><span class="s1">EMA == </span><span class="s2">&quot;SELL&quot;</span><span class="s1">):</span>
+            <span class="s0">if </span><span class="s1">(last_order == </span><span class="s2">&quot;sell&quot;</span><span class="s1">):</span>
+                <span class="s1">print(</span><span class="s2">&quot;selling stock of SONATSOFTW&quot;</span><span class="s1">)</span>
+                <span class="s1">driver.find_element(By.XPATH</span><span class="s0">,</span>
+                                    <span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]&quot;</span><span class="s1">).click()</span>
+                <span class="s1">time.sleep(</span><span class="s4">2</span><span class="s1">)</span>
+                <span class="s1">driver.find_element(By.XPATH</span><span class="s0">, </span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[6]/button[1]/div[1]/span[2]&quot;</span><span class="s1">).click()</span>
+                <span class="s1">current_price = driver.find_element(By.XPATH</span><span class="s0">,</span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]&quot;</span><span class="s1">).text</span>
+                <span class="s1">print(current_price)</span>
+                <span class="s1">take_profit = float(current_price) - </span><span class="s4">8</span>
+                <span class="s1">take_loss = float(current_price) + </span><span class="s4">5</span>
+                <span class="s0">while True</span><span class="s1">:</span>
+                    <span class="s1">print(</span><span class="s2">&quot;Time left till next call - &quot;</span><span class="s1">)</span>
+                    <span class="s1">countdown(int(</span><span class="s4">5</span><span class="s1">))</span>
+                    <span class="s1">rec = ssw.get_analysis()</span>
+                    <span class="s1">RSI = rec.indicators[</span><span class="s2">&quot;RSI&quot;</span><span class="s1">]</span>
+                    <span class="s3"># MACD = rec.indicators[&quot;MACD.macd&quot;]</span>
+                    <span class="s1">EMA = rec.moving_averages[</span><span class="s2">&quot;COMPUTE&quot;</span><span class="s1">][</span><span class="s2">&quot;EMA10&quot;</span><span class="s1">]</span>
+                    <span class="s1">print(</span><span class="s2">&quot;RSI:&quot;</span><span class="s0">, </span><span class="s1">RSI</span><span class="s0">, </span><span class="s2">&quot;EMA:&quot;</span><span class="s0">, </span><span class="s1">EMA)</span>
+                    <span class="s1">current_price = driver.find_element(By.XPATH</span><span class="s0">,</span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]&quot;</span><span class="s1">).text</span>
+                    <span class="s0">if </span><span class="s1">((RSI &lt;= </span><span class="s4">30 </span><span class="s0">and </span><span class="s1">EMA == </span><span class="s2">&quot;BUY&quot;</span><span class="s1">) </span><span class="s0">or </span><span class="s1">(float(current_price) &lt;= take_profit) </span><span class="s0">or </span><span class="s1">(</span>
+                            <span class="s1">float(current_price) &gt;= take_loss)):</span>
+                        <span class="s3"># buy the stock</span>
+                        <span class="s1">print(</span><span class="s2">&quot;Buying the stock&quot;</span><span class="s1">)</span>
+                        <span class="s1">driver.find_element(By.XPATH</span><span class="s0">, </span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[2]/div[1]/div[2]/div[2]/div[1]&quot;</span><span class="s1">).click()</span>
+                        <span class="s1">driver.find_element(By.XPATH</span><span class="s0">, </span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[2]/div[1]/div[1]/div[1]/div[1]/div[6]/button[1]/div[1]/span[2]&quot;</span><span class="s1">).click()</span>
+                        <span class="s0">break</span>
+                    <span class="s0">else</span><span class="s1">:</span>
+                        <span class="s1">print(</span><span class="s2">&quot;no adjustment required&quot;</span><span class="s1">)</span>
+
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s1">print(</span><span class="s2">&quot;condition not favourable..waiting&quot;</span><span class="s1">)</span>
+
+    <span class="s0">elif </span><span class="s1">(current_time &gt;= </span><span class="s2">&quot;15:10:00&quot;</span><span class="s1">):</span>
+        <span class="s1">print(</span><span class="s2">&quot;Time to close for the day&quot;</span><span class="s1">)</span>
+        <span class="s3"># #fetch open profit</span>
+        <span class="s1">open_profit = driver.find_element(By.XPATH</span><span class="s0">, </span><span class="s2">&quot;/html[1]/body[1]/div[2]/div[7]/div[2]/div[4]/div[1]/div[1]/div[1]/div[2]/div[3]/div[1]&quot;</span><span class="s1">).text</span>
+        <span class="s3"># print(open_profit)</span>
+        <span class="s3"># P = &quot;1000&quot;</span>
+        <span class="s1">print(</span><span class="s2">&quot;Calculating profit :&quot;</span><span class="s0">, </span><span class="s1">open_profit)</span>
+        <span class="s0">break</span>
+    <span class="s0">else</span><span class="s1">:</span>
+        <span class="s0">if </span><span class="s1">(current_time &gt;= </span><span class="s2">&quot;09:15:00&quot; </span><span class="s0">and </span><span class="s1">current_time &lt; </span><span class="s2">&quot;09:30:00&quot;</span><span class="s1">):</span>
+            <span class="s1">print(</span><span class="s2">&quot;Analysing market&quot;</span><span class="s0">, </span><span class="s2">&quot;</span><span class="s0">\n\n</span><span class="s2">&quot;</span><span class="s1">)</span>
+        <span class="s0">elif </span><span class="s1">(current_time &lt; </span><span class="s2">&quot;9:15:00&quot;</span><span class="s1">):</span>
+            <span class="s1">print(</span><span class="s2">&quot;Waiting for market to open&quot;</span><span class="s1">)</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            <span class="s1">print(</span><span class="s2">&quot;No action required&quot;</span><span class="s1">)</span>
+</pre>
+</body>
+</html>
